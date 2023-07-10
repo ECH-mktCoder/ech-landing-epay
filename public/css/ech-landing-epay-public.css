@@ -1,0 +1,35 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+h1.entry-title {
+    display: none;
+}
+
+
+.paymentInfo_container {
+    margin-bottom: 30px;
+}
+
+.epaySubmitBtn {
+    display: block;
+    background-color: #192744;
+    color: #fff;
+    max-width: 300px;
+    width: 100%;
+    cursor: pointer;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 16px;
+    line-height: 45px;
+    height: 45px;
+    padding: 0px;
+    text-decoration: none !important;
+}
+
+.epaySubmitBtn:hover {
+    background-color: #046bd2;
+    color: #fff;
+}
