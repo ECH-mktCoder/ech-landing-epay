@@ -22,6 +22,7 @@ Attribute | Description
 
 
 Below is the email content template
+
 親愛的會員
 
 您好，多謝您對{{email_sender}}的支持，「網上預付${{amount}}獨家禮遇」已成功付款，付款參考編號為[ref code]。到店或完成療程後即獲贈以下禮遇！
@@ -31,4 +32,5 @@ Below is the email content template
 如有任何疑問，請回覆向我們查詢。
 
 謹啟
+
 {{email_sender}}
