@@ -38,16 +38,18 @@
 
             $amount = $infoData['amount'] / 100; // 變回非兩位小數值
             // send email to customer
-            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $headers = array(
+                            'Content-Type: text/html; charset=UTF-8',
+                            'Reply-To: ' . $infoData['additionalInfo']['epayEmailReplyTo']
+                        );
             $toEmail = $infoData['additionalInfo']['email'];
-            $subject = "【DR REBORN成功網上付款通知】";
+            $subject = $infoData['additionalInfo']['epayEmailSubject'];
             $message = '<p>親愛的會員</p>
-                        <p>您好，多謝您對DR REBORN的支持，「網上預付$200獨家禮遇」已成功付款，付款參考編號為'.$infoData['clientTransactionId'].'。到店或完成療程後即獲贈以下禮遇！</p>
-                        <p>1. $50超市禮券</p>
-                        <p>2. 免費美容小禮品－磁力導入儀</p>
-                        <p>如有任何疑問，請回覆向我們查詢。</p>
+                        <p>您好，多謝您對'.$infoData['additionalInfo']['epayEmailSender'].'的支持，「網上預付$'.$amount.'獨家禮遇」已成功付款，付款參考編號為'.$infoData['clientTransactionId'].'。到店或完成療程後即獲贈以下禮遇！</p>'
+                        . $infoData['additionalInfo']['epayEmailPriceContent'] .
+                        '<p>如有任何疑問，請回覆向我們查詢。</p>
                         <br>
-                        <p>謹啟<br>DR REBORN</p>
+                        <p>謹啟<br>'.$infoData['additionalInfo']['epayEmailSender'].'</p>
                         '; 
             
             $isEmailSent = wp_mail( $toEmail, $subject, $message, $headers);

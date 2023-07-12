@@ -11,18 +11,22 @@
 				_booking_date = $("#ech_landing_epay_form #booking_date").val(),
 				_booking_time = $("#ech_landing_epay_form #booking_time").val(),
 				_booking_item = $("#ech_landing_epay_form #booking_item").val(),
-				_booking_location = $("#ech_landing_epay_form #booking_location").val(),
+				_booking_location = $("#ech_landing_epay_form #booking_location").val(), 
 				_website_url = $("#ech_landing_epay_form #website_url").val(),
 				_epay_refcode = $("#ech_landing_epay_form #epay_refcode").val(),
 				_epay_amount = $("#ech_landing_epay_form #epay_amount").val(),
-				_epay_duedate = $("#ech_landing_epay_form #epay_duedate").val();
+				_epay_duedate = $("#ech_landing_epay_form #epay_duedate").val(),				
+				_epay_email_subject = $("#ech_landing_epay_form #epay_email_subject").val(),
+				_epay_email_price_content = $("#ech_landing_epay_form #epay_email_price_content").val(),
+				_epay_email_sender = $("#ech_landing_epay_form #epay_email_sender").val(),
+				_epay_email_replyto = $("#ech_landing_epay_form #epay_email_replyto").val();
 
-			LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate);
+			LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto);
 		}); // on submit
 	}); // ready
 
 
-	function LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate) {
+	function LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto) {
 		$("#ech_landing_epay_form #epaySubmitBtn").html("提交中...");
 
 		var ajaxurl = $("#ech_landing_epay_form").data("ajaxurl");
@@ -39,7 +43,11 @@
 			'website_url': _website_url,
 			'epayRefCode': _epay_refcode,
 			'epayAmount': _epay_amount,
-			'epayDueDate': _epay_duedate
+			'epayDueDate': _epay_duedate,
+			'epayEmailSubject': _epay_email_subject,
+			'epayEmailPriceContent': _epay_email_price_content,
+			'epayEmailSender': _epay_email_sender,
+			'epayEmailReplyTo': _epay_email_replyto
 		}
 
 		

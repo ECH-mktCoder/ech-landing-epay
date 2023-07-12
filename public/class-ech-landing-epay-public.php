@@ -85,12 +85,28 @@ class Ech_Landing_Epay_Public {
 
 		$attsArr = shortcode_atts(array(
 			'amount' => 100,	// payment amount
-			'duedate' => null
+			'duedate' => null,
+			'email_subject' => null,
+			'email_price_content' => null,
+			'email_sender' => null,
+			'email_replyto' => null
 		), $atts);
 		
 
 		if ($attsArr['amount'] == null) {
 			return '<div class="code_error">shortcode error - amount is not specified</div>';
+		}
+		if ($attsArr['email_subject'] == null) {
+			return '<div class="code_error">shortcode error - email_subject is not specified</div>';
+		}
+		if ($attsArr['email_price_content'] == null) {
+			return '<div class="code_error">shortcode error - email_price_content is not specified</div>';
+		}
+		if ($attsArr['email_sender'] == null) {
+			return '<div class="code_error">shortcode error - email_sender is not specified</div>';
+		}
+		if ($attsArr['email_replyto'] == null) {
+			return '<div class="code_error">shortcode error - email_replyto is not specified</div>';
 		}
 
 
@@ -134,6 +150,15 @@ class Ech_Landing_Epay_Public {
 								<input type="hidden" name="epay_refcode" id="epay_refcode" value="'.$epayArr['epay_refcode'].'">
 								<input type="hidden" name="epay_amount" id="epay_amount" value="'.$attsArr['amount'].'">
 								<input type="hidden" name="epay_duedate" id="epay_duedate" value="'.$attsArr['duedate'].'">
+
+								<input type="hidden" name="epay_email_subject" id="epay_email_subject" value="'.html_entity_decode($attsArr['email_subject']).'">
+
+								<input type="hidden" name="epay_email_price_content" id="epay_email_price_content" value="'.html_entity_decode($attsArr['email_price_content']).'">
+
+								<input type="hidden" name="epay_email_sender" id="epay_email_sender" value="'.html_entity_decode($attsArr['email_sender']).'">
+
+								<input type="hidden" name="epay_email_replyto" id="epay_email_replyto" value="'.html_entity_decode($attsArr['email_replyto']).'">
+
 								<button type="submit" id="epaySubmitBtn" class="epaySubmitBtn">預付</button>
 							</form>
 						';
@@ -218,7 +243,11 @@ class Ech_Landing_Epay_Public {
 			"additionalInfo" => array( 
 									"curLang" => $TRP_LANGUAGE,
 									"email" => $_POST['email'],
-									"username" => $_POST['name']
+									"username" => $_POST['name'],
+									"epayEmailSubject" => $_POST['epayEmailSubject'],
+									"epayEmailPriceContent" => $_POST['epayEmailPriceContent'],
+									"epayEmailSender" => $_POST['epayEmailSender'],
+									"epayEmailReplyTo" => $_POST['epayEmailReplyTo']
 								)
 		);
 
