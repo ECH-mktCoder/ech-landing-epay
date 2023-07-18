@@ -98,6 +98,7 @@ class Ech_Landing_Epay_Admin {
 		// Register all settings for general setting page
 		register_setting( 'lp_epay_settings', 'ech_lp_epay_env');
 		register_setting( 'lp_epay_settings', 'ech_lp_epay_auth_token');
+		register_setting( 'lp_epay_settings', 'ech_whatsapp_contact');
 	}
 
 

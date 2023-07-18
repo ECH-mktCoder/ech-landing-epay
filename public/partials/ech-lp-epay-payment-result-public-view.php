@@ -54,24 +54,39 @@
             
             $isEmailSent = wp_mail( $toEmail, $subject, $message, $headers);
             if ( $isEmailSent ) {
-                echo '
-                    <div><h2>多謝! 完成付款, 確認電郵已發送</h2></div>
-                ';
+                echo '<div class="ech_epay_result_container">';
+                    echo '<h2>成功付款​</h2>';
+                    echo '<p>您好，多謝您對'.$infoData['additionalInfo']['epayEmailSender'].'的支持，「網上預付$'.$amount.'獨家禮遇」已成功付款。</p>';
+
+                    if ( !empty(get_option( 'ech_whatsapp_contact' )) ) {
+                        echo '如有任何疑問，請WhatsApp與我們聯絡: <a href="'.get_option( 'ech_whatsapp_contact' ).'" target="_blank">'.get_option( 'ech_whatsapp_contact' ).'</a>';
+                    }
+
+                echo '</div>'; //.ech_epay_result_container
             } else {
-                echo '
-                    <div><h2>多謝! 完成付款, 但發送確認電郵失敗, 請截屏以下資料再顯示給門市職員</h2></div>
-                    <div>交易編號: ' . $infoData['clientTransactionId']. '</div>
-                ';
+                echo '<div class="ech_epay_result_container">';
+                    echo '<h2>成功付款​</h2>';
+                    echo '<p>您好，多謝您對'.$infoData['additionalInfo']['epayEmailSender'].'的支持，「網上預付$'.$amount.'獨家禮遇」已成功付款。交易編號: '. $infoData['clientTransactionId'].'。請截屏這頁再顯示給門市職員</p>';
+
+                    if ( !empty(get_option( 'ech_whatsapp_contact' )) ) {
+                        echo '如有任何疑問，請WhatsApp與我們聯絡: <a href="'.get_option( 'ech_whatsapp_contact' ).'" target="_blank">'.get_option( 'ech_whatsapp_contact' ).'</a>';
+                    }
+                echo '</div>'; //.ech_epay_result_container
+
             }// if ( $isEmailSent )
         } // $paymentDetails['status'] == "COMPLETED" 
 
     ?>
 
 <?php else: ?>
-    <script>
-        alert('支付出錯，請重新支付');
-        history.back();
-    </script>";
+    <div class="ech_epay_result_container">
+        <h2>付款失敗</h2>
+        <p>很抱歉，有關「網上預付$<?=$amount?>獨家禮遇」付款失敗。</p>
+        
+        <?php if ( !empty(get_option( 'ech_whatsapp_contact' )) ): ?>
+            <p>如有任何疑問，請WhatsApp與我們聯絡: <a href="<?=get_option( 'ech_whatsapp_contact' )?>" target="_blank"><?=get_option( 'ech_whatsapp_contact' )?></a></p>
+        <?php endif; ?>
+    </div> <!-- ech_epay_result_container -->
 
 
 <?php endif; // infoData['state'] == PAID ?>

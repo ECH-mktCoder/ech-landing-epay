@@ -187,9 +187,6 @@ class Ech_Landing_Epay {
 		$this->loader->add_action( 'wp_ajax_LPepay_requestPayment', $plugin_public, 'LPepay_requestPayment' );
 		$this->loader->add_action( 'wp_ajax_nopriv_LPepay_requestPayment', $plugin_public, 'LPepay_requestPayment' );
 
-		//$this->loader->add_action( 'wp_ajax_getPaymentInfoByTransID', $plugin_public, 'getPaymentInfoByTransID' );
-		//$this->loader->add_action( 'wp_ajax_nopriv_getPaymentInfoByTransID', $plugin_public, 'getPaymentInfoByTransID' );
-
 
 		// ^^^ Add shortcodes
 		$this->loader->add_shortcode( 'display_epay', $plugin_public, 'display_epay_interface');

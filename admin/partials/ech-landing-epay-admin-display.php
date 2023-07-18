@@ -54,6 +54,11 @@
             </div>
 
             <div class="form_row">
+                <label>Whatsapp Contact Link : </label>
+                <input type="text" name="ech_whatsapp_contact" value="<?= get_option( 'ech_whatsapp_contact' )?>" id="ech_whatsapp_contact">
+            </div>
+
+            <div class="form_row">
                 <button type="submit"> Save </button>
             </div>
         </form>
