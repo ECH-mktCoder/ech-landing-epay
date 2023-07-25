@@ -14,7 +14,7 @@ Based on the requirments, change the attributes or values if necessary.
 Attribute | Description
 ----------|-------------
 `amount` (INT)[required] | Price. Default is 100
-`duedate` (INT) | Payment link expiration date from current date. Count in days. Default is null, no due date is set. 
+`duedate` (INT) | Payment link expiration date from current date. Count in days. Default is null. If duedate is set to null, duedate will be calculated based on the user booking date. Eg: current date is 2023-07-25, user booking date is 2023-05-27, duedate will be 2 (expire on 2023-05-27)
 `email_price_content` (String) [required] | In HTML format. Price content which shows in customer confirmation email. 
 `email_subject` (String) [required] | Email subject
 `email_sender` (String) [required] | Sender name. Eg: DR REBORN 
