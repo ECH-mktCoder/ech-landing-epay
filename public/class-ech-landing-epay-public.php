@@ -135,6 +135,8 @@ class Ech_Landing_Epay_Public {
 						$currentDate = time();
 						$dateDiff = $booking_date - $currentDate;
 
+						// if attsArr['duedate'] is null, then calculate duedate value based on the booking date.
+						// if booking date is null, then attsArr['duedate'] value will be used. 
 						if ($attsArr['duedate'] == null) {
 							if ($epayArr['booking_date'] != "") {
 								$booking_date = strtotime($epayArr['booking_date']);
