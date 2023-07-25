@@ -125,7 +125,6 @@ class Ech_Landing_Epay {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-ech-lp-epay-virtual-pages-public.php';
 
 		$this->loader = new Ech_Landing_Epay_Loader();
-
 	}
 
 	/**

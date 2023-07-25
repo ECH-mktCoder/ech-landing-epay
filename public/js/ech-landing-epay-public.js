@@ -1,6 +1,20 @@
 (function( $ ) {
 	'use strict';
 
+	/********* Prevent F12 and Right Click **********/
+	$(document).keydown(function (event) {
+		if (event.keyCode == 123) { // Prevent F12
+			return false;
+		} else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) { // Prevent Ctrl+Shift+I        
+			return false;
+		}
+	});
+
+	$(document).on("contextmenu", function (e) {        
+		e.preventDefault();
+	});
+	/********* (END) Prevent F12 and Right Click **********/
+
 	$(function(){
 		$('#ech_landing_epay_form').on("submit", function(e){
 			e.preventDefault();
@@ -15,7 +29,7 @@
 				_website_url = $("#ech_landing_epay_form #website_url").val(),
 				_epay_refcode = $("#ech_landing_epay_form #epay_refcode").val(),
 				_epay_amount = $("#ech_landing_epay_form #epay_amount").val(),
-				_epay_duedate = $("#ech_landing_epay_form #epay_duedate").val(),				
+				_epay_duedate = $("#ech_landing_epay_form #epay_duedate").val(),								
 				_epay_email_subject = $("#ech_landing_epay_form #epay_email_subject").val(),
 				_epay_email_price_content = $("#ech_landing_epay_form #epay_email_price_content").val(),
 				_epay_email_sender = $("#ech_landing_epay_form #epay_email_sender").val(),
@@ -57,7 +71,7 @@
 			url: ajaxurl,
 			data: epayData,
 			success: function (msg) {
-				console.log(msg);
+				//console.log(msg);
 
 				var paymentLink = "";
 				switch (msg.additionalInfo.curLang) {

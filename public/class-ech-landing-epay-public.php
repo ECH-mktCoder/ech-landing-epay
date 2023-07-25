@@ -48,10 +48,8 @@ class Ech_Landing_Epay_Public {
 	 * @param      string    $version    The version of this plugin.
 	 */
 	public function __construct( $plugin_name, $version ) {
-
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
@@ -77,7 +75,9 @@ class Ech_Landing_Epay_Public {
 	}
 
 
+
 	public function display_epay_interface($atts) {
+
 		// check if auth token has been set
 		if ( get_option('ech_lp_epay_auth_token') == "" && current_user_can( 'manage_options' ) ) {
 			return '<div class="code_error">Settings error - Auth token is not specified</div>';
@@ -120,11 +120,6 @@ class Ech_Landing_Epay_Public {
 			$paymentStatusArr = $this->checkPaymentLinkStatus($epayArr['epay_refcode']); 
 			//print_r($paymentStatusArr);
 
-			/* $res = $this->getPaymentInfoByTransID($epayArr['epay_refcode']); 
-			echo '<br><br><pre>';
-			$resArr = json_decode( $res, true );
-			print_r($resArr);
-			echo '</pre>'; */
 			// *********** Check if connected to UAT ePay api ***************/
 			if ( get_option('ech_lp_epay_env') == "1" && current_user_can( 'manage_options' ) ) {
 				$output .= '<div style="background: #ff6a6a;color: #fff">Please note that UAT ePay is connected</div>';
@@ -136,32 +131,56 @@ class Ech_Landing_Epay_Public {
 				case 0: // PaymentLinkRequest_NotFound
 					// show form to register epay link
 					if( $epayArr['email'] != "" && !empty($epayArr['email']) ) {
+						$booking_date = strtotime($epayArr['booking_date']);
+						$currentDate = time();
+						$dateDiff = $booking_date - $currentDate;
 
-						$output .= '				
-							<form id="ech_landing_epay_form" action="" method="post" data-ajaxurl="'.get_admin_url(null, 'admin-ajax.php').'">
-								<input type="hidden" name="username" id="username" value="'.$epayArr['username'].'">
-								<input type="hidden" name="phone" id="phone" value="'.$epayArr['phone'].'">
-								<input type="hidden" name="email" id="email" value="'.$epayArr['email'].'">
-								<input type="hidden" name="booking_date" id="booking_date" value="'.$epayArr['booking_date'].'">
-								<input type="hidden" name="booking_time" id="booking_time" value="'.$epayArr['booking_time'].'">
-								<input type="hidden" name="booking_item" id="booking_item" value="'. $epayArr['booking_item'].'">
-								<input type="hidden" name="booking_location" id="booking_location" value="'.$epayArr['booking_location'].'">
-								<input type="hidden" name="website_url" id="website_url" value="'.$epayArr['website_url'].'">
-								<input type="hidden" name="epay_refcode" id="epay_refcode" value="'.$epayArr['epay_refcode'].'">
-								<input type="hidden" name="epay_amount" id="epay_amount" value="'.$attsArr['amount'].'">
-								<input type="hidden" name="epay_duedate" id="epay_duedate" value="'.$attsArr['duedate'].'">
+						if ($attsArr['duedate'] == null) {
+							if ($epayArr['booking_date'] != "") {
+								$booking_date = strtotime($epayArr['booking_date']);
+								$currentDate = time();
+								$dateDiff = $booking_date - $currentDate;
+								$epayDueDate = round($dateDiff / (60*60*24)); 
+							} else {
+								$epayDueDate = $attsArr['duedate'];
+							}
+						} else {
+							$epayDueDate = $attsArr['duedate'];
+						}
 
-								<input type="hidden" name="epay_email_subject" id="epay_email_subject" value="'.html_entity_decode($attsArr['email_subject']).'">
+						if ( $epayDueDate < 0 ) {
+							$output .= "<h2>付款連結已過期, 多謝</h2>";
+						} else {
+							
+							$output .= '				
+								<form id="ech_landing_epay_form" action="" method="post" data-ajaxurl="'.get_admin_url(null, 'admin-ajax.php').'" >
+									<input type="hidden" name="username" id="username" value="'.$epayArr['username'].'">
+									<input type="hidden" name="phone" id="phone" value="'.$epayArr['phone'].'">
+									<input type="hidden" name="email" id="email" value="'.$epayArr['email'].'">
+									<input type="hidden" name="booking_date" id="booking_date" value="'.$epayArr['booking_date'].'">
+									<input type="hidden" name="booking_time" id="booking_time" value="'.$epayArr['booking_time'].'">
+									<input type="hidden" name="booking_item" id="booking_item" value="'. $epayArr['booking_item'].'">
+									<input type="hidden" name="booking_location" id="booking_location" value="'.$epayArr['booking_location'].'">
+									<input type="hidden" name="website_url" id="website_url" value="'.$epayArr['website_url'].'">
+									<input type="hidden" name="epay_refcode" id="epay_refcode" value="'.$epayArr['epay_refcode'].'">
+									<input type="hidden" name="epay_amount" id="epay_amount" value="'.$attsArr['amount'].'">
+									<input type="hidden" name="epay_duedate" id="epay_duedate" value="'.$epayDueDate.'">
+									
 
-								<input type="hidden" name="epay_email_price_content" id="epay_email_price_content" value="'.html_entity_decode($attsArr['email_price_content']).'">
+									<input type="hidden" name="epay_email_subject" id="epay_email_subject" value="'.html_entity_decode($attsArr['email_subject']).'">
 
-								<input type="hidden" name="epay_email_sender" id="epay_email_sender" value="'.html_entity_decode($attsArr['email_sender']).'">
+									<input type="hidden" name="epay_email_price_content" id="epay_email_price_content" value="'.html_entity_decode($attsArr['email_price_content']).'">
 
-								<input type="hidden" name="epay_email_replyto" id="epay_email_replyto" value="'.html_entity_decode($attsArr['email_replyto']).'">
+									<input type="hidden" name="epay_email_sender" id="epay_email_sender" value="'.html_entity_decode($attsArr['email_sender']).'">
 
-								<button type="submit" id="epaySubmitBtn" class="epaySubmitBtn">預付</button>
-							</form>
-						';
+									<input type="hidden" name="epay_email_replyto" id="epay_email_replyto" value="'.html_entity_decode($attsArr['email_replyto']).'">
+									
+									<button type="submit" id="epaySubmitBtn" class="epaySubmitBtn">預付</button>
+								</form>
+							';
+						}
+
+						
 					} 
 					break; 
 
@@ -201,8 +220,6 @@ class Ech_Landing_Epay_Public {
 	} //display_epay_interface
 
 
-	
-
 
 	public function LPepay_requestPayment() {
 		global $TRP_LANGUAGE;
@@ -239,7 +256,6 @@ class Ech_Landing_Epay_Public {
 			"responseFailURL" => get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
 			"responseSuccessURL"=> get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
 			"useInstallment" => false,
-			//"webhookUrl" => "PaymentNotification",
 			"additionalInfo" => array( 
 									"curLang" => $TRP_LANGUAGE,
 									"email" => $_POST['email'],
@@ -254,7 +270,7 @@ class Ech_Landing_Epay_Public {
 		$result = $this->LPepay_POSTcurl('/payment-link-requests', json_encode($epayData));
 		echo $result;
 		wp_die();
-	}
+	} 
 
 
 	public function getPaymentInfoByTransID( $transID ) {
