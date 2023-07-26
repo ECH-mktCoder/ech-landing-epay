@@ -1,20 +1,6 @@
 (function( $ ) {
 	'use strict';
 
-	/********* Prevent F12 and Right Click **********/
-	$(document).keydown(function (event) {
-		if (event.keyCode == 123) { // Prevent F12
-			return false;
-		} else if (event.ctrlKey && event.shiftKey && event.keyCode == 73) { // Prevent Ctrl+Shift+I        
-			return false;
-		}
-	});
-
-	$(document).on("contextmenu", function (e) {        
-		e.preventDefault();
-	});
-	/********* (END) Prevent F12 and Right Click **********/
-
 	$(function(){
 		$('#ech_landing_epay_form').on("submit", function(e){
 			e.preventDefault();
@@ -29,18 +15,19 @@
 				_website_url = $("#ech_landing_epay_form #website_url").val(),
 				_epay_refcode = $("#ech_landing_epay_form #epay_refcode").val(),
 				_epay_amount = $("#ech_landing_epay_form #epay_amount").val(),
+				_epay_formNonce = $("#ech_landing_epay_form #epay_form_nonce").val(),
 				_epay_duedate = $("#ech_landing_epay_form #epay_duedate").val(),								
 				_epay_email_subject = $("#ech_landing_epay_form #epay_email_subject").val(),
 				_epay_email_price_content = $("#ech_landing_epay_form #epay_email_price_content").val(),
 				_epay_email_sender = $("#ech_landing_epay_form #epay_email_sender").val(),
 				_epay_email_replyto = $("#ech_landing_epay_form #epay_email_replyto").val();
 
-			LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto);
+			LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_formNonce, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto);
 		}); // on submit
 	}); // ready
 
 
-	function LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto) {
+	function LPepay_requestPayment(_name, _phone, _email, _booking_date, _booking_time, _booking_item, _booking_location, _website_url, _epay_refcode, _epay_amount, _epay_formNonce, _epay_duedate, _epay_email_subject, _epay_email_price_content, _epay_email_sender, _epay_email_replyto) {
 		$("#ech_landing_epay_form #epaySubmitBtn").html("提交中...");
 
 		var ajaxurl = $("#ech_landing_epay_form").data("ajaxurl");
@@ -57,6 +44,7 @@
 			'website_url': _website_url,
 			'epayRefCode': _epay_refcode,
 			'epayAmount': _epay_amount,
+			'epayFormNonce': _epay_formNonce,
 			'epayDueDate': _epay_duedate,
 			'epayEmailSubject': _epay_email_subject,
 			'epayEmailPriceContent': _epay_email_price_content,
@@ -71,18 +59,22 @@
 			url: ajaxurl,
 			data: epayData,
 			success: function (msg) {
-				//console.log(msg);
-
-				var paymentLink = "";
-				switch (msg.additionalInfo.curLang) {
-					case 'en_GB':
-						paymentLink = msg.paymentLinkUrlEn; break;						
-					case 'zh_CN': 
-						paymentLink = msg.paymentLinkUrlSc; break;
-					default: 
-						paymentLink = msg.paymentLinkUrlTc;
+				console.log(msg);
+				if ( msg != '401' ) {
+					var paymentLink = "";
+					switch (msg.additionalInfo.curLang) {
+						case 'en_GB':
+							paymentLink = msg.paymentLinkUrlEn; break;						
+						case 'zh_CN': 
+							paymentLink = msg.paymentLinkUrlSc; break;
+						default: 
+							paymentLink = msg.paymentLinkUrlTc;
+					}
+					window.location.replace(paymentLink);
+				} else {
+					alert('401!');
+					window.location.replace('/');
 				}
-				window.location.replace(paymentLink);
 			}, 
 			error: function (err) {
 				console.log("Ajax error: " + err);

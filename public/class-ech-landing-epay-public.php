@@ -40,6 +40,7 @@ class Ech_Landing_Epay_Public {
 	 */
 	private $version;
 
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -73,6 +74,10 @@ class Ech_Landing_Epay_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/ech-landing-epay-public.js', array( 'jquery' ), $this->version, false );
 
 	}
+
+
+	
+
 
 
 
@@ -128,8 +133,9 @@ class Ech_Landing_Epay_Public {
 
 
 			switch ( $paymentStatusArr['status'] ) {
-				case 0: // PaymentLinkRequest_NotFound
-					// show form to register epay link
+				case 0: // PaymentLinkRequest_NotFound, require to generate one
+
+					// create form to register an epay link
 					if( $epayArr['email'] != "" && !empty($epayArr['email']) ) {
 						$booking_date = strtotime($epayArr['booking_date']);
 						$currentDate = time();
@@ -142,7 +148,13 @@ class Ech_Landing_Epay_Public {
 								$booking_date = strtotime($epayArr['booking_date']);
 								$currentDate = time();
 								$dateDiff = $booking_date - $currentDate;
-								$epayDueDate = round($dateDiff / (60*60*24)); 
+								$epayDueDate = round($dateDiff / (60*60*24)) - 1 ; // dueDate是預約日期 T - 1
+								
+								// epayment API那邊沒法運行 dueDate = 0, 所以如果預約日期是明天, dueDate就會變預約日期當天
+								if ( $epayDueDate == 0 ) {
+									$epayDueDate = 1;									
+								}
+
 							} else {
 								$epayDueDate = $attsArr['duedate'];
 							}
@@ -153,6 +165,11 @@ class Ech_Landing_Epay_Public {
 						if ( $epayDueDate < 0 ) {
 							$output .= "<h2>付款連結已過期, 多謝</h2>";
 						} else {
+
+							// set verification for real amount value using WP nonce to prevent changing value in DevTool
+							$amount = $attsArr['amount'];
+							$s = $_SERVER['SERVER_NAME']; // add for more difficulties to hack
+							$form_nonce = wp_create_nonce($amount . $s);
 							
 							$output .= '				
 								<form id="ech_landing_epay_form" action="" method="post" data-ajaxurl="'.get_admin_url(null, 'admin-ajax.php').'" >
@@ -165,7 +182,8 @@ class Ech_Landing_Epay_Public {
 									<input type="hidden" name="booking_location" id="booking_location" value="'.$epayArr['booking_location'].'">
 									<input type="hidden" name="website_url" id="website_url" value="'.$epayArr['website_url'].'">
 									<input type="hidden" name="epay_refcode" id="epay_refcode" value="'.$epayArr['epay_refcode'].'">
-									<input type="hidden" name="epay_amount" id="epay_amount" value="'.$attsArr['amount'].'">
+									<input type="hidden" name="epay_amount" id="epay_amount" value="'.$amount.'">
+									<input type="hidden" name="form_nonce" id="epay_form_nonce"  value="'.$form_nonce.'" />
 									<input type="hidden" name="epay_duedate" id="epay_duedate" value="'.$epayDueDate.'">
 									
 
@@ -226,55 +244,70 @@ class Ech_Landing_Epay_Public {
 	public function LPepay_requestPayment() {
 		global $TRP_LANGUAGE;
 
-		switch($TRP_LANGUAGE) {
-			case 'en_GB': 
-				$lang = "/en";
-				break;
-			case 'zh_CN': 
-				$lang = "/zh_cn";
-				break;
-			default: 
-				$lang = "";
-		}
+		// verification of the posted amount
+		$post_amt = $_POST['epayAmount'];
+		$s = $_SERVER['SERVER_NAME'];
+		$post_nonce = wp_create_nonce($post_amt . $s);
 
-		$booking_info = "預約項目: " . $_POST['booking_item'] . " | 預約日期: ".$_POST['booking_date']." | 預約時間: " .$_POST['booking_time']. " | 選擇門市: " . $_POST['booking_location']; 
-		
-		$amount = $_POST['epayAmount'] * 100; // 這裡epay會變兩位小數 (eg. 100 -> ePay $1.00), 需要乘100，不接收小數點
+		$protected_nonce = $_POST['epayFormNonce'];
 
-		if ( empty($_POST['epayDueDate']) || $_POST['epayDueDate'] == '') {
-			$dueDate = '';
+		if ( $post_nonce != $protected_nonce ) {
+			echo '401';
+			exit;
 		} else {
-			$dueDate = date('Y-m-d', strtotime(' +' . $_POST['epayDueDate'] . ' day'));
-		}
+			switch($TRP_LANGUAGE) {
+				case 'en_GB': 
+					$lang = "/en";
+					break;
+				case 'zh_CN': 
+					$lang = "/zh_cn";
+					break;
+				default: 
+					$lang = "";
+			}
+	
+			$booking_info = "預約項目: " . $_POST['booking_item'] . " | 預約日期: ".$_POST['booking_date']." | 預約時間: " .$_POST['booking_time']. " | 選擇門市: " . $_POST['booking_location']; 
+			
+			$amount = $_POST['epayAmount'] * 100; // 這裡epay會變兩位小數 (eg. 100 -> ePay $1.00), 需要乘100，不接收小數點
+	
+			if ( empty($_POST['epayDueDate']) || $_POST['epayDueDate'] == '') {
+				$dueDate = '';
+			} else {
+				$dueDate = date('Y-m-d', strtotime(' +' . $_POST['epayDueDate'] . ' day'));
+			}
+	
+			$epayData = array(
+				"amount" => $amount, 
+				"clientTransactionId" => $_POST['epayRefCode'],
+				"currency" => "HKD",
+				"customerId" => trim($_POST['phone']),
+				"customerName" => $_POST['name'],
+				"description" => $booking_info,
+				"dueDate" => $dueDate,
+				"responseFailURL" => get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
+				"responseSuccessURL"=> get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
+				"useInstallment" => false,
+				"additionalInfo" => array( 
+										"curLang" => $TRP_LANGUAGE,
+										"email" => $_POST['email'],
+										"username" => $_POST['name'],
+										"epayEmailSubject" => $_POST['epayEmailSubject'],
+										"epayEmailPriceContent" => $_POST['epayEmailPriceContent'],
+										"epayEmailSender" => $_POST['epayEmailSender'],
+										"epayEmailReplyTo" => $_POST['epayEmailReplyTo']
+									)
+			);
 
-		$epayData = array(
-			"amount" => $amount, 
-			"clientTransactionId" => $_POST['epayRefCode'],
-			"currency" => "HKD",
-			"customerId" => trim($_POST['phone']),
-			"customerName" => $_POST['name'],
-			"description" => $booking_info,
-			"dueDate" => $dueDate,
-			"responseFailURL" => get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
-			"responseSuccessURL"=> get_site_url(). $lang . "/epay-landing-payment-result/?transid=".$_POST['epayRefCode'],
-			"useInstallment" => false,
-			"additionalInfo" => array( 
-									"curLang" => $TRP_LANGUAGE,
-									"email" => $_POST['email'],
-									"username" => $_POST['name'],
-									"epayEmailSubject" => $_POST['epayEmailSubject'],
-									"epayEmailPriceContent" => $_POST['epayEmailPriceContent'],
-									"epayEmailSender" => $_POST['epayEmailSender'],
-									"epayEmailReplyTo" => $_POST['epayEmailReplyTo']
-								)
-		);
+			$result = $this->LPepay_POSTcurl('/payment-link-requests', json_encode($epayData));
+			echo $result;
+			wp_die();
 
-		$result = $this->LPepay_POSTcurl('/payment-link-requests', json_encode($epayData));
-		echo $result;
-		wp_die();
+		} // if $post_nonce != $protected_nonce		
 	} 
 
 
+
+	
 	public function getPaymentInfoByTransID( $transID ) {
 		$urlParams = "?clientTransactionId=".$transID;
 		$result = $this->LPepay_GETcurl('/payment-link-requests'.$urlParams); 
@@ -392,7 +425,6 @@ class Ech_Landing_Epay_Public {
 		curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false ); // 不驗證證書
 		curl_setopt ( $ch, CURLOPT_SSL_VERIFYHOST, false ); // 不驗證HOST
 		curl_setopt ( $ch, CURLOPT_SSLVERSION, 1 );
-		//curl_setopt($ch, CURLOPT_POSTFIELDS, $params );
 		curl_setopt ( $ch, CURLOPT_RETURNTRANSFER, true );
 
 		$header = array(

@@ -9,9 +9,4 @@ class Ech_LP_Epay_Virtual_Pages_Public {
 		include('partials/ech-lp-epay-payment-result-public-view.php');
 	}  // lp_epay_payment_result_output()
 
-
-/*     public function lp_epay_fail_output() {
-		include('partials/ech-lp-epay-fail-public-view.php');
-    } //dr_category_list_output */
-
 } // class
