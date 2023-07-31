@@ -60,7 +60,9 @@ class Ech_Landing_Epay_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/ech-landing-epay-admin.css', array(), $this->version, 'all' );
+		if ( isset($_GET['page']) && $_GET['page'] == 'lp_epay_settings' ) {
+			wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/ech-landing-epay-admin.css', array(), $this->version, 'all' );
+		}
 	}
 
 	/**
@@ -69,7 +71,9 @@ class Ech_Landing_Epay_Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/ech-landing-epay-admin.js', array( 'jquery' ), $this->version, false );
+		if ( isset($_GET['page']) && $_GET['page'] == 'lp_epay_settings' ) {
+			wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/ech-landing-epay-admin.js', array( 'jquery' ), $this->version, false );
+		}
 	}
 
 
