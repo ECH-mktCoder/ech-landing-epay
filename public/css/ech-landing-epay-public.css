@@ -14,8 +14,8 @@ h1.entry-title {
 
 .epaySubmitBtn {
     display: block;
-    background-color: #192744;
-    color: #fff;
+    /* background-color: #192744;
+    color: #fff; */
     max-width: 300px;
     width: 100%;
     cursor: pointer;
@@ -25,7 +25,8 @@ h1.entry-title {
     font-size: 16px;
     line-height: 45px;
     height: 45px;
-    padding: 0px;
+    padding: 10px;
+    border-radius: 5px;
     text-decoration: none !important;
 }
 

@@ -117,6 +117,24 @@ class Ech_Landing_Epay_Public {
 
 		$output = "";
 
+		// *********** Custom styling ***************/
+		if ( !empty(get_option( 'ech_lfg_submitBtn_color' )) || !empty(get_option( 'ech_lfg_submitBtn_hoverColor') || !empty(get_option('ech_lfg_submitBtn_text_color')) || !empty(get_option('ech_lfg_submitBtn_text_hoverColor')) ) ) {
+			$output .= '<style>';
+			
+			$output .= '.epaySubmitBtn { ';
+				( !empty(get_option( 'ech_lfg_submitBtn_color' )) ) ? $output .= 'background:'. get_option( 'ech_lfg_submitBtn_color' ).' !important;' : '';
+				( !empty(get_option( 'ech_lfg_submitBtn_color' )) ) ? $output .= 'border: 1px solid '. get_option( 'ech_lfg_submitBtn_color' ).' !important;' : '';
+				( !empty(get_option( 'ech_lfg_submitBtn_text_color' )) ) ? $output .= 'color:'. get_option( 'ech_lfg_submitBtn_text_color' ).' !important;' : '';
+			$output .= '}';
+
+			$output .= '.epaySubmitBtn:hover { ';
+				( !empty(get_option( 'ech_lfg_submitBtn_hoverColor' )) ) ? $output .= 'background:'. get_option( 'ech_lfg_submitBtn_hoverColor' ).' !important;' : '';
+				( !empty(get_option( 'ech_lfg_submitBtn_text_hoverColor' )) ) ? $output .= 'color:'. get_option( 'ech_lfg_submitBtn_text_hoverColor' ).' !important;' : '';
+			$output .= '}';
+
+			$output .= '</style>';
+		}
+		// *********** (END) Custom styling ****************/
 
 		if (isset($_GET['epay'])) {
 			$urldecode_epay = urldecode($_GET['epay']);
@@ -213,7 +231,7 @@ class Ech_Landing_Epay_Public {
 						$month = date_format($dueDate,"m");
 						$day = date_format($dueDate,"d");
 						
-						$output .= '<div>連結會在'.$year.'年'. $month . '月'. $day . '日到期</div>';
+						$output .= '<div>限時預付優惠會在'.$year.'年'. $month . '月'. $day . '日到期</div>';
 					}
 					
 					$output .= '<a href="' . $paymentLink . '" class="epaySubmitBtn">預付</a>';
