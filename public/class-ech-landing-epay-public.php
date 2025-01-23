@@ -137,9 +137,11 @@ class Ech_Landing_Epay_Public {
 		// *********** (END) Custom styling ****************/
 
 		if (isset($_GET['epay'])) {
-			$urldecode_epay = urldecode($_GET['epay']);
-			$epayArr = json_decode( stripslashes($urldecode_epay), true );
-
+			// $urldecode_epay = urldecode($_GET['epay']);
+			// $epayArr = json_decode( stripslashes($urldecode_epay), true );
+			$epay = $_GET['epay'];
+			$epayArr = $this->decrypted_epay($epay);
+			
 			$paymentStatusArr = $this->checkPaymentLinkStatus($epayArr['epay_refcode']); 
 			//print_r($paymentStatusArr);
 
@@ -257,7 +259,16 @@ class Ech_Landing_Epay_Public {
 		return $output;
 	} //display_epay_interface
 
+	private function decrypted_epay($encryptedPayload) {
+		$secretKey = get_option( 'ech_lfg_epay_secret_key' );
 
+    $decodedPayload = base64_decode($encryptedPayload);
+    list($encryptedData, $iv, $tag) = explode("::", $decodedPayload);
+    $compressedData = openssl_decrypt($encryptedData, 'aes-256-gcm', $secretKey, 0, $iv, $tag);
+    $originalData = gzuncompress($compressedData);
+
+    return json_decode($originalData, true);
+	}
 
 	public function LPepay_requestPayment() {
 		global $TRP_LANGUAGE;
