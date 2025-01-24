@@ -263,10 +263,12 @@ class Ech_Landing_Epay_Public {
 		$secretKey = get_option( 'ech_lfg_epay_secret_key' );
 
     $decodedPayload = base64_decode($encryptedPayload);
-    list($encryptedData, $iv, $tag) = explode("::", $decodedPayload);
-    $compressedData = openssl_decrypt($encryptedData, 'aes-256-gcm', $secretKey, 0, $iv, $tag);
-    $originalData = gzuncompress($compressedData);
-
+		$parts = explode("::", $decodedPayload, 2);
+		$encryptedData = $parts[0];
+    $iv = base64_decode($parts[1]);
+		$compressedData = openssl_decrypt($encryptedData, 'aes-256-cbc', $secretKey, 0, $iv);
+		$originalData = gzuncompress($compressedData);
+		
     return json_decode($originalData, true);
 	}
 
